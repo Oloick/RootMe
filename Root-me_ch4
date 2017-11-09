@@ -22,10 +22,14 @@ if(!$socket){
       }
       if(substr($retour[1],0,5) == "Candy"){
         echo $retour[2];
-        $string = zlib_decode($retour[2]);
-        echo $string." String decoded";
 
-        fputs($socket,"PRIVMSG Candy : !ep4 -rep ".$string."\r\n");
+        $txt=base64_decode($retour[2]);
+        $txt=(zlib_decode($txt));
+
+      //  $txt=(zlib_encode("AzErTyIop",ZLIB_ENCODING_DEFLATE));
+      //  $txt=base64_encode($txt);
+
+        fputs($socket,"PRIVMSG Candy : !ep4 -rep ".$txt."\r\n");
         //Problème, on renvoie le fputs quand il valide le challange mais on s'en fou on a le password !
       }
       if(rtrim($retour[0]) == 'PING')
