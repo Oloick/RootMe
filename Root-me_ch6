@@ -1,0 +1,108 @@
+<?php
+
+#Récupération de page HTML
+$curl = curl_init("http://challenge01.root-me.org/programmation/ch1/");
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_HEADER, true);
+curl_setopt($curl, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/SuiteArithmetiqueCookie.txt'); #Save cookie
+$page = curl_exec($curl);
+curl_close($curl);
+
+echo $page;
+echo "\n \n";
+
+#Recupération Value in HTML
+$RootCHPage = new DOMDocument();
+libxml_use_internal_errors(true); #HTML is broken
+$RootCHPage->loadHTML($page);
+
+  #Recupération de ValeurComptEnd
+$subs = $RootCHPage->getElementsByTagName('sub');
+$valeurComptEnd = $subs[3]->nodeValue;
+
+  #Recupération de ValeurX & ValeurY
+$StringExplode = explode('</sub>',$page);
+#echo " == Test 1 :".$StringExplode[1]."\n";
+#echo " == Test 2 : ".$StringExplode[2]."\n";
+#echo " == Test 3 : ".$StringExplode[3]."\n";
+
+$retourSt1 = explode(' ',$StringExplode[1]);
+$retourSt2 = explode(' ',$StringExplode[2]);
+$retourSt3 = explode(' ',$StringExplode[3]);
+
+$ValeurDown = $retourSt3[2]; #ValeurDown
+$ValeurX = $retourSt1[3]; #ValeurX
+$ValeurY = $retourSt2[6]; #ValeurY
+$charPositifOrNegatif = $retourSt2[2]; #UP or DOWN : $Signe
+
+$valeurCompt = 0;
+function suite($valeurComptEnd, $valeurX, $valeurY, $valeurDown, $valeurCompt, $charPositifOrNegatif ){
+  $valeurLeft = ($valeurX + $valeurDown);
+  $valeurRight = ($valeurCompt * $valeurY);
+  #echo "Valeur Left : (".$valeurX.")+(".$valeurDown.")\n";
+  #echo "Valeur Right : (".$valeurCompt.")*(".$valeurY.")\n";
+  if($charPositifOrNegatif == "+"){
+    $valeurUPP = $valeurLeft + $valeurRight; #Positif
+    #echo "ValeurX : ".$valeurX."\n";
+    #echo "ValeurY : ".$valeurY."\n";
+    #echo "Valeur Un : ".$valeurDown."\n";
+    #echo "Valeur Compt : ".$valeurCompt."\n";SuiteArithmetiqueCookie.txt
+    #echo " SIGNE + : ".$charPositifOrNegatif."\n";
+    #echo "Valeur compteur ".$valeurCompt.": ".$valeurUPP."\n";
+    if($valeurCompt != $valeurComptEnd){
+      suite($valeurComptEnd, $valeurX, $valeurY, $valeurUPP, $valeurCompt+1,$charPositifOrNegatif);
+    }else {
+      $url = "http://challenge01.root-me.org/programmation/ch1/ep1_v.php?result=".$valeurUPP;
+      #echo "URL : ".$url;
+      $curl = curl_init();
+      curl_setopt($curl, CURLOPT_URL, $url);
+      curl_setopt($curl, CURLOPT_HEADER, true);
+      curl_setopt($curl, CURLOPT_COOKIEFILE, 'SuiteArithmetiqueCookie.txt');
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      $page = curl_exec($curl);
+      $info = curl_getinfo($curl);
+      curl_close($curl);
+      echo $page;
+      echo "== END == ".$valeurUPP;
+      return $valeurUPP;
+    }
+  }else {
+    $valeurUPN = $valeurLeft - $valeurRight; #negatif
+    #echo "ValeurX : ".$valeurX."\n";
+    #echo "ValeurY : ".$valeurY."\n";
+    #echo "Valeur Un : ".$valeurDown."\n";
+    #echo "Valeur Compt : ".$valeurCompt."\n";
+    #echo " SIGNE - : ".$charPositifOrNegatif."\n";
+    #echo "Valeur compteur ".$valeurCompt.": ".$valeurUPN."\n";
+    if($valeurCompt != $valeurComptEnd){
+      suite($valeurComptEnd, $valeurX, $valeurY, $valeurUPN, $valeurCompt+1, $charPositifOrNegatif);
+    }else {
+      $url = "http://challenge01.root-me.org/programmation/ch1/ep1_v.php?result=".$valeurUPN;
+      #echo "URL : ".$url;
+      $curl = curl_init();
+      curl_setopt($curl, CURLOPT_URL,$url);
+      curl_setopt($curl, CURLOPT_HEADER, true);
+      curl_setopt($curl, CURLOPT_COOKIEFILE, 'SuiteArithmetiqueCookie.txt');
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      $page = curl_exec($curl);
+      $info = curl_getinfo($curl);
+      curl_close($curl);
+      echo $page;
+      echo "== END == ".$valeurUPN;
+      return $valeurUPN;
+    }
+  }
+}
+
+#Fonction principale Suite : Recursivite
+echo suite($valeurComptEnd-1, $ValeurX, $ValeurY, $ValeurDown, $valeurCompt, $charPositifOrNegatif);
+ ?>
+
+
+ // Vérification CODE FONCTIONEMENT
+Un+1 = ( 36 + Un ) + ( n * 15 )
+U0 = -523
+Ce qui veut dire que :
+Un = ( 36 + Un-1 ) + ( (n-1) * 15 )
+donc
+U1 = ( 36 + U0 ) + ( (0) * 15 ) = -487
