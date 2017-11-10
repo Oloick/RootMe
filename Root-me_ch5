@@ -2,29 +2,27 @@
 
 require "vendor/autoload.php";
 
-$timestamp_debut = microtime(true);
+#Récupération de page HTML
 $curl = curl_init("http://challenge01.root-me.org/programmation/ch8/");
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl, CURLOPT_HEADER, true);
-curl_setopt($curl, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/cookie.txt');
-
+curl_setopt($curl, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/cookie.txt'); #Save cookie
 $page = curl_exec($curl);
 curl_close($curl);
 
+#Récuperation du Hash base64
 $data = preg_match('`<img src="data:image/png;base64,(.*?)"`',$page,$match);
 $data = $match[1];
-echo $page;
-echo "\n\n\n";
-
 $data = base64_decode($data);
+file_put_contents('/root/Desktop/RootMe/image.png', $data); #Save Picture
 
-file_put_contents('/root/Desktop/RootMe/image.png', $data);
+#Translate
 $captchaS = (new TesseractOCR('image.png'))
     ->run();
 
-$captchaS = substr($captchaS,0,12);
-echo $captchaS."\n \n";
+$captchaS = substr($captchaS,0,12); #car 12 caractère, réduit les erreurs
 
+#Send POST with param / cookie
 $curl = curl_init();
 curl_setopt($curl, CURLOPT_URL, "http://challenge01.root-me.org/programmation/ch8/");
 curl_setopt($curl, CURLOPT_POST, 1);
@@ -40,7 +38,5 @@ $timestamp_fin = microtime(true);
 $difference_ms = $timestamp_fin - $timestamp_debut;
 
 // affichage du résultat
-echo 'Exécution du script : ' . $difference_ms . ' secondes. \n';
-echo "\n\n\n".$info;
 echo $page;
 ?>
