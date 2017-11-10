@@ -1,0 +1,6 @@
+{
+    "name": "root/root-me",
+    "require": {
+        "thiagoalessio/tesseract_ocr": "1.2.0"
+    }
+}
